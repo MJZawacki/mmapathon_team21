@@ -1,21 +1,20 @@
 ---
-#
-#  Manifest.yml for a basic hello world index.html file
-#  This application and steps to deploy are described in full in the getting started guide on predix.io
-#
-#  Step 1 is to change your application name, save, exit, and cf push
-#  Step 2 - In later tutorials you will be shown how to **bind** to Predix services as described on predix.io
-
 applications:
-  - name: MS-Substation-WebApp # Step 1: Change your application name
-    buildpack: staticfile_buildpack 
-    memory: 256M
-    stack: cflinuxfs2
+  # TODO: Replace with a unique team name (eg: MMSanFranFtw)
+  - name: MMSanFrancisco-ui
+    memory: 512M
+    buildpack: nodejs_buildpack
+    command: node server/app.js
+    path: dist
 
-    # Later, to Bind to services, uncomment the section below and enter the service name that you gave, e.g.
-    #services:
-    # - my_redis_instance # change this to your redis service instance name
+services:
+ - mmsanfranciscoteam-time-series
+ - mmsanfranciscoteam-uaa
+ - MMSanFrancisco_uaa_admin
+ - MMSanFrancisco_timeseries_heatPump
+ - MMSanFrancisco_timeseries_loadData
 
-    # You may set environment variables that your code will read in, e.g.
-    #env:
-    #  MY_ENV_VARIABLE: my-value
+env:
+    node_env: cloud
+    clientId: app_client_id
+    clientSecret: secret
