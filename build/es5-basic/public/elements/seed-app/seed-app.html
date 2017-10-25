@@ -4854,5 +4854,5 @@ Custom property | Description
     </div>
   </template>
 
-  <script>Polymer({is:"seed-app",properties:{appHeader:{type:String},global:{type:Object,value:function(){return{name:"seed__app",session:{},version:"1.0"}}},navItems:{type:Array,value:function(){return[{icon:"px-fea:dashboard",label:"View 1",id:"view-1"},{icon:"px-obj:wind-turbine",label:"View 2",id:"view-2"},{icon:"px-nav:log-out",label:"Sign out",id:"logout"}]}},navRoute:{type:Array}},ready:function(){this.$.starterAppRoute.navRoute||(this.$.starterAppRoute.navRoute=["view-1"])},getHref:function(a){var a=this.$.starterAppRoute.navRoute||["view-1"];return"/elements/views/"+a[0]+".html"}});</script>
+  <script>Polymer({is:"seed-app",properties:{appHeader:{type:String},global:{type:Object,value:function(){return{name:"seed__app",session:{},version:"1.0"}}},navItems:{type:Array,value:function(){return[{icon:"px-fea:dashboard",label:"DR Operator",id:"view-1"},{icon:"px-fea:asset-ingestion",label:"Devices",id:"view-2"},{icon:"px-fea:analytics",label:"ML Design",id:"view-3"},{icon:"px-nav:log-out",label:"Sign out",id:"logout"}]}},navRoute:{type:Array}},ready:function(){this.$.starterAppRoute.navRoute||(this.$.starterAppRoute.navRoute=["view-1"])},getHref:function(a){var a=this.$.starterAppRoute.navRoute||["view-1"];return"/elements/views/"+a[0]+".html"}});</script>
 </dom-module>
