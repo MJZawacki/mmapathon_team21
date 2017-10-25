@@ -1,0 +1,124 @@
+<!-- import polymer -->
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<!-- import page level css -->
+<link rel="import" href="seed-app-styles.html">
+
+<!-- app route -->
+<link rel="import" href="../../bower_components/app-route/app-location.html">
+<link rel="import" href="../../bower_components/px-app-helpers/px-app-route/px-app-route.html">
+<!-- px components -->
+<link rel="import" href="../../bower_components/px-app-nav/px-app-nav.html">
+<link rel="import" href="../../bower_components/px-view/px-view.html">
+<link rel="import" href="../../bower_components/px-login/px-login.html">
+<link rel="import" href="../../bower_components/px-branding-bar/px-branding-bar.html">
+
+<!-- google components -->
+<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
+
+<!-- importing icons here, to fix icon flickering problem when loading asynchronously. -->
+<link rel="import" href="../../bower_components/px-icon-set/px-icon.html">
+<link rel="import" href="../../bower_components/px-icon-set/px-icon-set.html">
+
+<dom-module id="seed-app">
+  <template>
+
+    <!-- apply imported seed app style module -->
+    <style include="seed-app-styles"></style>
+
+    <px-branding-bar application-title="your__app__title"></px-branding-bar>
+
+    <div class="viewport">
+      <!-- app-location captures url and assigns navRoute value -->
+      <app-location
+        route="{{route}}">
+      </app-location>
+
+      <px-app-route
+        id="starterAppRoute"
+        route="{{route}}"
+        update-nav-route
+        nav-route="{{navRoute}}">
+      </px-app-route>
+
+      <div class="flex flex--row flex--justify">
+        <div class="u-3/4-desk u-1/1-palm">
+          <px-app-nav
+            class="navbar"
+            items="{{navItems}}"
+            selected-route="{{navRoute}}">
+          </px-app-nav>
+        </div>
+      </div>
+
+      <main role="main">
+        <px-view id="view" element-href="{{getHref(navRoute)}}" active load-async></px-view>
+      </main>
+    </div>
+  </template>
+
+  <script>
+    Polymer({
+      is: "seed-app",
+
+      properties: {
+
+        appHeader: {
+          type: String
+        },
+
+        // Global application object
+        global: {
+            type: Object,
+            value: function () {
+                return {
+                    name: "seed__app",
+                    session: {},
+                    version: "1.0"
+                };
+            }
+        },
+
+        // Links to appear in the main navigation - px-app-nav component
+        // See https://www.predix-ui.com/#/elements/px-icon-set for available icons
+        navItems: {
+          type: Array,
+          value: function() {
+            return [
+              {
+                icon: "px-fea:dashboard",
+                label: "View 1",
+                id: "view-1"
+              }, {
+                icon: "px-obj:wind-turbine",
+                label: "View 2",
+                id: "view-2"
+              }, {
+                icon: "px-nav:log-out",
+                label: "Sign out",
+                id: "logout"
+              }
+            ];
+          }
+        },
+
+        navRoute: {
+          type: Array,
+        }
+      },
+
+      ready: function(){
+        if (!this.$.starterAppRoute.navRoute) {
+          // set default route
+          this.$.starterAppRoute.navRoute = ['view-1'];
+        }
+      },
+
+      getHref: function(navRoute) {
+        var navRoute = this.$.starterAppRoute.navRoute || ['view-1'];
+        return '/elements/views/' + navRoute[0] + '.html';
+      }
+
+    });
+  </script>
+</dom-module>
