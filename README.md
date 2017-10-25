@@ -1,4 +1,5 @@
-## Getting Started
+
+# The web app running on Predix with Power BI reports embeded
 
 This Timeseries UI app is intended to show you how to request and plot time series data from the heatpump timeseries instance. Please note that another timeseries instance is available with ESB load & weather data and the seed-app is already configured to communicate with that instance.
 
