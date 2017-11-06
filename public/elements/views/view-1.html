@@ -1,6 +1,6 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
-<script src="../../bower_components/jquery/dist/jquery.js"></script>
-<script src="../../bower_components/powerbi-client/dist/powerbi.js"></script>
+<link rel="import" href="../../bower_components/promise-polyfill/promise-polyfill.html">
+
 <!--
 import is done in seed-app since it is needed by both views
 <link rel="import" href="../../bower_components/px-card/px-card.html">
@@ -28,9 +28,8 @@ import is done in seed-app since it is needed by both views
         attached: function () {
 
         
-
-            // Read embed application token from textbox
-            var txtAccessToken = 'H4sIAAAAAAAEAB2Wx6rGCm9F3-VOHXBvgX_g7s-9t5l7790h755zM9NAIFiSWPt__rHSd5jT4p___qfelBX_qalMYaUjO9HSp9VqinRnuzcu_Uz6aq9PPG-rLoZ5rZKU98TJKMayCmhnL1T7ZsU6mZh7HTtPRvw9N6_mua5bEUoxwArp0NjCENRS6xN3Uu8BuWOQBXEFQ4j5V2NfjdxZhmHvIQI3Wj8l2kv6KfbEy7PXg9_cOm-yXCXUfoQ2YPLBiRLT0RKQuFMSNjc0tL5WAyedaOleHQS-99r06Elfo7efpA4r5-TTPupWxKrTuHtP_NhVpsvGW4HUwgbUGVo2wrko8Ln0CDfQNBd9UwDPEx2a5rHWM6C7QoEV8AKIagkkOsNKs_kzw3NAvNkS9URi1c_CMGUATJBjRVDkndxm_yJEXZNrOtN1jOyUC_OFJr46Bg1cOHuuoB-dm61sYBtGF_Ker7AOGiXGk5r5NnGfYI_qp3xV7GFEWpb8bC57EfY5mU-ecdMzTk-7RQ959nqGAs889saYpOtMX6fexSJEEhY3ymYY67XMw_ugUxoN-JwQI2eAc3ZHieDAilDxNegaU6_OEvUKpb8bbPOy07pcZlOhMhH1XeWaP_0S2YYdPIPONRBF5oIspuUhCZEUwo_ZFUf1gHroAxzAxaiU8p3dK8nczp8Or-u_bhl2qxuSx6LDRKOiETUl8TIuB0tFoMfqUYB-c7_9cBlKI-hOPaxRYuDQhgsbRLefQj1QQMpjkGt1sbRKrbpSqROnuvrS87A4lGLkrFQJPgTNMvxFNwp-mFHWGX0ADGbyd89qlfkb8m2Dv79KmQYov4aRVAtKSbAW63jrHE5uxHcinJJ5_UKPrnF3GHjhujobjViZe0QS4YgeALPIgVylnMKi82OJBGn2YIGWfEY-CjCsHY7KgHB2OaCNLEtVR4IhpsZajtK976xYNMch8KLWX4ZNhU0AcF4MCsK_8w--zyUBvqMO4vJx5YPLhE44hFB_-xb8lHqdqa1SYZhuaf9nf6Of2eTD-rxqUmIowuZosFb47VMvk6ir_ehhv0UZdvJTwd8aCfRUzpoCsuxLYraotvzlnWhoBjtfGQpr2Q2QrS50WRB0yfFd6Qh4EcvXMCh7nyfGDrEjFuCAa917jWk0K7iYQKTGNMO8066Yk_hfJpI-mnwrMzhX4LlQ3eouzShghEphOYZcUxGfMJ3JCKzSfKCLwvU3oTy6ae56i-_z9cqBAAWNozYLg3Utqeboi6qbAjIcjVFxqK8EIdhhprUnjMnSKth5LztJsEGw-sSos0utwXqzESvEg8hsegYJyn08sTs5DtLf2bS8b1V8XGDSa_EOJhII-oQmJLcxFO1cstAFFlz7HDsBQDh4RyyU7xrrdr8tq7CZK63H-bI75k6xCUSj7rxBDzehBoF87iWH0u7BDvUOSECB3jelg4PgLmP1wMvVjO0e20LVsdQ-C6TR0USLWBMJ6Lq3gdTHimmxZqmo3hrcU8XACmh2Ydex6F78yV1PHIqzR_FqEn5dUb-jOZ20ZYsXfeeim-BTWwca7Zo0ZabxAVt7irjKAeQv_rYrnRqHw7v5gjuEIXEMd7rMoeTcBq9acBsxsdWYmSy5MqPwitr-1Zu_sUo03xRZDOepSMOXfcguJltc2M_ebP7A35YUzao76u_zb0WXxFR0z5nTzvKk3JAKB-I818lviwAfqhYKNeUceODxGNa2jljWyt5yZaQH7pNXWbskJIh8eiclM1aNAOWV9XMopmIYzTdbZZwzvH2WxWCXRZ3WLnEZuPNXBsirw5Rv18MtIhZU8gbstP6HFNk1CSqae69KT0Kn4qQgRWQiv1vwnfw8IkCyfPzbrRid5YgoaZDB21BbaBIOIQYnOG7Zp0ZHQIW7C9X-dB7QW4WYWLehBqrMb694ruirnCVbLuacvPthfh1pfJ7nasTlNXHn-ZUj7M66HwH-YGVHPiL9yuswZLgLWW7XFPczq39ONGrrx6Plk3iw46S36u2OqMz9Lo9ou1mvvcfkuLXHMoLqDZ2Wc-NAbsxluXSC6HyylL_WLHDJMSOkiLkfV0ndjiQ0LHJRMZezFJd6hPbwVM2v_tO_zAXGm9tGxXnyxqDIgl7E-G2KhRj_hhZ5QTuv0MJrittGwBzFWVVHz4hwoc9cl-SCP6UkKSv1jm7yjKmX9M9__cNt73LMavn-xYn8Ox1boC4IOVxEKE9QrE-W-dJowyAS48XcIZlGzR9UUTPUVUfEHc4N8mULBwsqxyvhJ6yVWlxXRPdocmWUl4KRohCnYqdurW8ABms7j7XG5Hy-j6HTkIiUPaG3Pv49OVmwNXNef9Gk_lXpkjLxhUTMQVHBAOiUUcyHq3Y_bwWhBJZDTIZ9g4-7FSK7sEhFKskgvSGM2SDyzh9AqdB3KAOycjTwOKohWnM5cc4GcM7Iy9mcadlvTsYGO0rCsTFZJ4QdLMyRgV-X2FLoqXN1au0BOuKP0r0goLWRKveCVIcq95gC8uSqFE-GNVvTP7_kssjEju53x4idykMj0bn9yKvzv_o___kX87s05fYL_ihj6U2D3MH3JfG0FeGEQJXgzP93uW09pce5lf8ug2uEpaKtP9ckm_yzbOYhd2ekJjQ9CpS6VBhqYAsWjVZlD_zN2ENaTxo-6qfB92hCchJCui4wEmm0rRtIj99MLyPspIn6Uk0A1qHxC7FopyqtaPwaT62jyU78i6OJV69uuUIZcufEsXgm03TxLc9ElTOitHlqgr90iHwreroAIgGceACvKRG_WgoOKb9JvW6QaHKwi-g5uHV4hkbNuCkZoOK6XEbag9kEwckgU1MYUegPsTSJtUn7R2aDq5o87Fr0mbcaYtjxV4dLLsuzcLT8hodssOHcmwb6oH_2S86KpJOGMQsbS9tDxAFUegzlsniiKAWUWeog6FbSXrcXo17aOv-L-X__D4Ac1sZCCwAA';
+            generateEmbedToken(reportId, groupId)
+    .then(function( txtAccessToken ) {
             // Read embed URL from textbox
 
             var txtEmbedUrl = 'https://app.powerbi.com/reportEmbed?reportId=f451eb77-03e6-4c35-9fc1-ae1163290f4a&groupId=102b79a2-229e-4d79-9d90-24d15c14b278'
@@ -84,7 +83,13 @@ import is done in seed-app since it is needed by both views
                     pages.map(x => console.log(x.name))
                 });
 
-            console.log("Loaded");
+                setTokenExpirationListener(Token.expiration,
+                    2 /*minutes before expiration*/, 
+                    reportId, 
+                    groupId);
+                  
+
+                console.log("Loaded");
             });
              
             report.on("error", function(event) {
@@ -100,10 +105,62 @@ import is done in seed-app since it is needed by both views
                     Log.logText('In order to interact with the new report, create a new token and load the new report');
                  }
              });
-
+        });
         }
     });
 
+    
+function setTokenExpirationListener(tokenExpiration, 
+    minutesToRefresh = 2, 
+    reportId, 
+    groupId){
+    // get current time
+    var currentTime = Date.now();
+    var expiration = Date.parse(tokenExpiration);
+    var safetyInterval = minutesToRefresh* 60 * 1000;
+
+    // time until token refresh in milliseconds
+    var timeout = expiration - currentTime - safetyInterval;
+
+    // if token already expired, generate new token and set the access token
+    if (timeout<=0)
+    {
+        console.log("Updating Report Embed Token");
+        updateToken(reportId, groupId);
+    }
+    // set timeout so minutesToRefresh minutes before token expires, token will be updated
+    else 
+    {
+        console.log("Report Embed Token will be updated in " + timeout + " milliseconds.");
+        setTimeout(function() {
+        updateToken(reportId, groupId);
+        }, timeout);
+    }
+}
+
+function updateToken(reportId, groupId) {
+    // Generate new EmbedToken
+    generateEmbedToken(reportId, groupId)
+    .then(function( Token ) {
+        // Get a reference to the embedded report HTML element
+        var embedContainer = $('#embedContainer')[0];
+
+        // Get a reference to the embedded report.
+        var report = powerbi.get(embedContainer);
+
+        // Set AccessToken
+        report.setAccessToken(Token.token)
+        .then(function() {
+        // Set token expiration listener
+        // result.expiration is in ISO format
+        setTokenExpirationListener(Token.expiration,2 /*minutes before expiration*/);
+        });
+    });
+}
+ 
+function generateEmbedToken(reportId, groupId) {
+    // call backend
+}
 
 </script>
 </dom-module>
