@@ -20,13 +20,16 @@
 <link rel="import" href="../../bower_components/px-icon-set/px-icon.html">
 <link rel="import" href="../../bower_components/px-icon-set/px-icon-set.html">
 
+<script src="../../bower_components/jquery/dist/jquery.js" inline></script>
+<script src="../../bower_components/powerbi-client/dist/powerbi.js" inline></script>
+
 <dom-module id="seed-app">
   <template>
 
     <!-- apply imported seed app style module -->
     <style include="seed-app-styles"></style>
 
-    <px-branding-bar application-title="your__app__title"></px-branding-bar>
+    <px-branding-bar application-title="Rechargable Devices DR"></px-branding-bar>
 
     <div class="viewport">
       <!-- app-location captures url and assigns navRoute value -->
@@ -87,13 +90,19 @@
             return [
               {
                 icon: "px-fea:dashboard",
-                label: "View 1",
+                label: "Grid Operator",
                 id: "view-1"
               }, {
-                icon: "px-obj:wind-turbine",
-                label: "View 2",
+                icon: "px-fea:asset-ingestion",
+                label: "Device Management",
                 id: "view-2"
-              }, {
+              }, 
+              {
+                icon: "px-fea:analytics",
+                label: "Data Science",
+                id: "view-3"
+              },
+              {
                 icon: "px-nav:log-out",
                 label: "Sign out",
                 id: "logout"

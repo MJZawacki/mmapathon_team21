@@ -1,166 +1,166 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
-<link rel="import" href="../../bower_components/px-dropdown/px-dropdown.html">
-<link rel="import" href="../../bower_components/px-vis-timeseries/px-vis-timeseries.html">
-<link rel="import" href="../df-timeseries-ajax-client/df-timeseries-ajax-client.html">
-
-<link rel="import" href="../../bower_components/px-card/px-card.html">
-<!-- Use light theme in this component, not the app's dark theme. -->
-<link rel="import" href="../../bower_components/px-theme/px-theme-styles.html">
-<script src="../../bower_components/moment/min/moment.min.js"></script>
+<link rel="import" href="../../bower_components/promise-polyfill/promise-polyfill.html">
 
 <!--
-import is done in seef-app since it is needed by both views
+import is done in seed-app since it is needed by both views
 <link rel="import" href="../../bower_components/px-card/px-card.html">
 -->
-
 <dom-module id="view-1">
-    <template>
+<template>
         <style include="px-theme-styles">
-          px-card {
-            background: white;
-          }
-        </style>
-
-        <!--
-          Note: Load data can insead be pulled by replacing the service-endpoint value as such:
-            service-endpoint="/api/MMSanFrancisco_timeseries_loadData/v1/tags"
-            service-endpoint="/api/predix-timeseries/v1/datapoints" (personal instance in current space)
-
-          Documentation on Timeseries APIs can be found here: https://www.predix.io/api#!/Time_Series
-        -->
-        <df-timeseries-ajax-client id="tsTagClient" method="GET"
-                                   service-endpoint="/api/MMSanFrancisco_timeseries_heatPump/v1/tags"
-                                   raw-ts-data="{{rawTsTagData}}" auto></df-timeseries-ajax-client>
-        <df-timeseries-ajax-client id="tsDataClient" start="10y-ago"
-                                   service-endpoint="/api/MMSanFrancisco_timeseries_heatPump/v1/datapoints"
-                                   tags="[[selectedTag]]"
-                                   raw-ts-data="{{rawTsData}}"></df-timeseries-ajax-client>
-
-        <px-card header-text="Load Data" icon="px-fea:analysis">
-          <div class="u-1/4-desk u-1/1-palm">
-            <div class="u-pr">
-              <px-dropdown
-                items="[[tsTagList]]"
-                sort-mode="key"
-                button-style="default"
-                display-value="Select"
-                selected="{{selectedTagKey}}">
-              </px-dropdown>
-            </div>
-          </div>
-
-          <div>
-              <div>
-                  <px-vis-timeseries
-                      debounce-resize-timing="250"
-                      progressive-rendering-points-per-frame="16000" progressive-rendering-min-frames="1"
-                      chart-horizontal-alignment="center" chart-vertical-alignment="top"
-                      margin='{"top":0,"bottom":60,"left":65,"right":35}'
-                      show-tooltip
-                      register-config='{"type": "horizontal", "truncationLength" : 20}'
-                      selection-type="xAxis"
-                      chart-data="{{chartData}}"
-                      series-config="{{chartConfig}}"
-                      chart-extents='{"x":["dynamic","dynamic"],"y":["dynamic","dynamic"]}'
-                      x-axis-config='{"title":"Time", "ticks": {"interval" : 3, "format": "%H:%M:%S"}}'
-                      x-axis-type="timeLocal"
-                      y-axis-config='{"title": "Data", "truncationLength" : 20}'
-                      toolbar-config='{"config": {}}'
-                      width="700"
-                      height="450"
-                      disable-navigator>
-                  </px-vis-timeseries>
-              </div>
-          </div>
-        </px-card>
-
-
-    </template>
-
-    <script>
-
-        "use strict";
-
-        Polymer({
-            is: "view-1",
-            properties: {
-                rawTsData: {
-                    type: Object
-                },
-                rawTsTagData: {
-                    type: Object,
-                    value: function () {
-                        return {};
-                    },
-                    observer: "onRawTsTagDataChanged"
-                },
-                tsTagList: {
-                    type: Array,
-                    value: function () {
-                        return [];
-                    }
-                },
-                selectedTagKey: {
-                    type: String,
-                    observer: "observerSelectTag"
-                },
-                selectedTag: {
-                    type: String
-                },
-                chartConfig: {
-                    type: Object
-                },
-                chartData: {
-                    type: Array
+                px-card {
+                  background: white;
                 }
-            },
-            observers: [
-                "onRawTsDataChanged(rawTsData)"
-            ],
-            ready: function () {
-                console.log("Dashboard ready");
-            },
+              </style>
+    <div id="embedContainer" style="height:700px;"></div>
+</template>
 
-            onRawTsTagDataChanged: function () {
+<script>
 
-                if (this.rawTsTagData.results) {
-                    let choices = [];
+    "use strict";
 
-                    this.rawTsTagData.results.forEach(function (element, index) {
-                        choices.push({
-                            key: index.toString(),
-                            val: element
-                        });
-                    });
-                    this.tsTagList = choices;
-                }
-            },
-            observerSelectTag: function () {
+    Polymer({
+        is: "view-1",
+        properties: {},
+        ready: function () {
+            console.log("view2 ready()");
+        },
+        attached: function () {
 
-                if (this.selectedTagKey) {
-                    this.selectedTag = [
-                        {
-                            name: this.rawTsTagData.results[Number(this.selectedTagKey)],
-                            limit: 100,
-                            order: "desc"
-                        }
-                    ];
-                    this.$.tsDataClient.generateRequest();
-                }
-            },
-            onRawTsDataChanged: function () {
-                let config = {};
-                let data = this.$.tsDataClient.getDataPointsAsChartData();
+        
+            generateEmbedToken(reportId, groupId)
+    .then(function( txtAccessToken ) {
+            // Read embed URL from textbox
 
-                if (data && data.length > 0) {
-                    config[this.selectedTag[0].name] = {
-                        type: "line", name: this.selectedTag[0].name,
-                        x: "x", y: "y_" + this.selectedTag[0].name, yAxisUnit: "unit"
-                    };
-                    this.chartConfig = config;
-                    this.chartData = data;
-                }
-            }
+            var txtEmbedUrl = 'https://app.powerbi.com/reportEmbed?reportId=f451eb77-03e6-4c35-9fc1-ae1163290f4a&groupId=102b79a2-229e-4d79-9d90-24d15c14b278'
+                   
+            // Read report Id from textbox
+            var txtEmbedReportId = 'f451eb77-03e6-4c35-9fc1-ae1163290f4a'
+             
+            // Get models. models contains enums that can be used.
+            var models = window['powerbi-client'].models
+             
+            // We give All permissions to demonstrate switching between View and Edit mode and saving report.
+            var permissions = models.Permissions.All;
+             
+            // Embed configuration used to describe the what and how to embed.
+            // This object is used when calling powerbi.embed.
+            // This also includes settings and options such as filters.
+            // You can find more information at https://github.com/Microsoft/PowerBI-JavaScript/wiki/Embed-Configuration-Details.
+            var config= {
+                type: 'report',
+                tokenType: models.TokenType.Embed,
+                accessToken: txtAccessToken,
+                embedUrl: txtEmbedUrl,
+                id: txtEmbedReportId,
+                permissions: permissions,
+                viewMode: models.ViewMode.View,
+                pageName: 'ReportSection3ff1eb819f6fd201ae75',
+                settings: {
+                    filterPaneEnabled: true,
+                    navContentPaneEnabled: true
+                }
+            };
+
+
+             
+            // Get a reference to the embedded report HTML element
+            var embedContainer = $('div#embedContainer')[0];
+             
+            // Embed the report and display it within the div container.
+            var report = powerbi.embed(embedContainer, config);
+             
+
+
+            // Report.off removes a given event handler if it exists.
+            report.off("loaded");
+             
+            // Report.on will add an event handler which prints to Log window.
+            report.on("loaded", function() {
+
+                report.getPages()
+                .then(pages => {
+                    pages.map(x => console.log(x.name))
+                });
+
+                setTokenExpirationListener(Token.expiration,
+                    2 /*minutes before expiration*/, 
+                    reportId, 
+                    groupId);
+                  
+
+                console.log("Loaded");
+            });
+             
+            report.on("error", function(event) {
+                Log.log(event.detail);
+                 
+                report.off("error");
+            });
+             
+            report.off("saved");
+            report.on("saved", function(event) {
+                Log.log(event.detail);
+                if(event.detail.saveAs) {
+                    Log.logText('In order to interact with the new report, create a new token and load the new report');
+                 }
+             });
         });
-    </script>
+        }
+    });
+
+    
+function setTokenExpirationListener(tokenExpiration, 
+    minutesToRefresh = 2, 
+    reportId, 
+    groupId){
+    // get current time
+    var currentTime = Date.now();
+    var expiration = Date.parse(tokenExpiration);
+    var safetyInterval = minutesToRefresh* 60 * 1000;
+
+    // time until token refresh in milliseconds
+    var timeout = expiration - currentTime - safetyInterval;
+
+    // if token already expired, generate new token and set the access token
+    if (timeout<=0)
+    {
+        console.log("Updating Report Embed Token");
+        updateToken(reportId, groupId);
+    }
+    // set timeout so minutesToRefresh minutes before token expires, token will be updated
+    else 
+    {
+        console.log("Report Embed Token will be updated in " + timeout + " milliseconds.");
+        setTimeout(function() {
+        updateToken(reportId, groupId);
+        }, timeout);
+    }
+}
+
+function updateToken(reportId, groupId) {
+    // Generate new EmbedToken
+    generateEmbedToken(reportId, groupId)
+    .then(function( Token ) {
+        // Get a reference to the embedded report HTML element
+        var embedContainer = $('#embedContainer')[0];
+
+        // Get a reference to the embedded report.
+        var report = powerbi.get(embedContainer);
+
+        // Set AccessToken
+        report.setAccessToken(Token.token)
+        .then(function() {
+        // Set token expiration listener
+        // result.expiration is in ISO format
+        setTokenExpirationListener(Token.expiration,2 /*minutes before expiration*/);
+        });
+    });
+}
+ 
+function generateEmbedToken(reportId, groupId) {
+    // call backend
+}
+
+</script>
 </dom-module>

@@ -111,14 +111,118 @@ app.use("/", mainAuthenticate(),
     express.static(path.join(__dirname, process.env["base-dir"] ? process.env["base-dir"] : "../public"))
 );
 
+
+var access_token;
+var refresh_token;
+var accesscode;
+var reportId = "5159317a-8556-478f-be0b-c22e1e117deb";
+var groupId = "102b79a2-229e-4d79-9d90-24d15c14b278";
+
 app.use("/redirect", function (req, res) {
-    var accessToken = req.query.code;
-    var reportId = "5159317a-8556-478f-be0b-c22e1e117deb";
-    var groupId = "102b79a2-229e-4d79-9d90-24d15c14b278";
-    console.log(req.query.code);
+    var accesscode = req.query.code;
+
+    console.log('CODE: ' + req.query.code);
+    //get access_token and refresh_token
+
     
-    res.sendFile(process.cwd() + "/public/redirect.html");
+    // Set the headers
+    var headers = {
+        'User-Agent':       'Super Agent/0.0.1',
+        'Content-Type':     'application/x-www-form-urlencoded'
+    }
+    
+    // Configure the request
+    var options = {
+        url: 'https://login.microsoftonline.com/72f988bf-86f1-41af-91ab-2d7cd011db47/oauth2/token',
+        method: 'POST',
+        headers: headers,
+        form: {
+            'grant_type': 'authorization_code',
+        'code': accesscode,
+        'client_id': '429565bf-9782-474a-8d4b-3c2449669c97',
+        'redirect_uri': 'http://localhost:5000/redirect',
+        'client_secret': 'LsQO0wUXht/OCkrjuudFRxyv6vJ2VXqVTm0C/yZhsao='
+        }
+    }
+    
+    // Start the request
+    request(options, function (error, response, body) {
+        if (!error && response.statusCode == 200) {
+            // Print out the response body
+         
+            var responseObj = JSON.parse(body);
+            console.log('access_token: ' + responseObj.access_token);
+            console.log('refresh_token: ' + responseObj.refresh_token);
+            app.set('access_token', responseObj.access_token);
+            app.set('refresh_token', responseObj.refresh_token);
+            return res.status(200).send('{ "access_token": "' + responseObj.access_token + '", "refresh_token: "' + responseObj.refresh_token + '" }');
+        } else {
+            return res.status(response.statusCode);
+        }
+    });
+    
+    
 });
+
+app.use("/newembedtoken", mainAuthenticate({noRedirect: true}), function (req, res) {
+    // Set the headers
+    var headers = {
+        'Authorization':       'Bearer ' + app.get('access_token'),
+        'Content-Type':     'application/json'
+    }
+    
+    // Configure the request
+    var options = {
+        url: 'https://api.powerbi.com/v1.0/myorg/groups/102b79a2-229e-4d79-9d90-24d15c14b278/reports/f451eb77-03e6-4c35-9fc1-ae1163290f4a/GenerateToken',
+        method: 'POST',
+        headers: headers,
+        form: {   
+            "accessLevel": "View",
+        } 
+    }
+    
+    // Start the request
+    request(options, function (error, response, body) {
+        if (!error && response.statusCode == 200) {
+            var responseObj = JSON.parse(body);
+            console.log('embed token: ' + responseObj.token);
+            return res.status(200).send('{ "token": "' + responseObj.token + '" }');
+        } else {
+            // use refresh token and retry
+            refreshAccessToken();
+                // Set the headers
+            var headers = {
+                'Authorization':       'Bearer ' + app.get('access_token'),
+                'Content-Type':     'application/json'
+            };
+            var options = {
+                url: 'https://api.powerbi.com/v1.0/myorg/groups/102b79a2-229e-4d79-9d90-24d15c14b278/reports/f451eb77-03e6-4c35-9fc1-ae1163290f4a/GenerateToken',
+                method: 'POST',
+                headers: headers,
+                form: {   
+                    "accessLevel": "View",
+                } 
+            };
+            // Start the request
+            request(options, function (error, response, body) {
+                if (!error && response.statusCode == 200) {
+                    var responseObj = JSON.parse(body);
+                    console.log('embed token: ' + responseObj.token);
+                    return res.status(200).send('{ "token": "' + responseObj.token + '" }');
+                } else {
+                    // use refresh token and retry
+                    return res.status(response.statusCode);
+                }
+            });
+        }
+    });
+    
+});
+
+var refreshAccessToken = function() {
+
+};
+
 
 app.use("/pbi", mainAuthenticate({noRedirect: true}), function (req, res) {
     res.sendFile(process.cwd() + "/public/pbi.html");

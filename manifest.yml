@@ -1,11 +1,11 @@
 ---
 applications:
   # TODO: Replace with a unique team name (eg: MMSanFranFtw)
-  - name: MMSanFrancisco-ui
+  - name: MMMicrosoft
     memory: 512M
     buildpack: nodejs_buildpack
     command: node server/app.js
-    path: dist
+    path: build/es5-basic
 
 services:
  - mmsanfranciscoteam-time-series
