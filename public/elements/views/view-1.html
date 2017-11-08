@@ -1,5 +1,4 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
-<link rel="import" href="../../bower_components/promise-polyfill/promise-polyfill.html">
 
 <!--
 import is done in seed-app since it is needed by both views
@@ -11,156 +10,164 @@ import is done in seed-app since it is needed by both views
                 px-card {
                   background: white;
                 }
-              </style>
-    <div id="embedContainer" style="height:700px;"></div>
-</template>
-
+         </style>
+         <div id="embedContainer" style="height:700px;"></div>
+        </template>
 <script>
 
     "use strict";
-
     Polymer({
         is: "view-1",
         properties: {},
         ready: function () {
-            console.log("view2 ready()");
+            console.log("view1 ready()");
         },
         attached: function () {
-
-        
+            
+          
+            var reportId = 'f451eb77-03e6-4c35-9fc1-ae1163290f4a';
+            var groupId = '102b79a2-229e-4d79-9d90-24d15c14b278';
             generateEmbedToken(reportId, groupId)
-    .then(function( txtAccessToken ) {
-            // Read embed URL from textbox
-
-            var txtEmbedUrl = 'https://app.powerbi.com/reportEmbed?reportId=f451eb77-03e6-4c35-9fc1-ae1163290f4a&groupId=102b79a2-229e-4d79-9d90-24d15c14b278'
-                   
-            // Read report Id from textbox
-            var txtEmbedReportId = 'f451eb77-03e6-4c35-9fc1-ae1163290f4a'
-             
-            // Get models. models contains enums that can be used.
-            var models = window['powerbi-client'].models
-             
-            // We give All permissions to demonstrate switching between View and Edit mode and saving report.
-            var permissions = models.Permissions.All;
-             
-            // Embed configuration used to describe the what and how to embed.
-            // This object is used when calling powerbi.embed.
-            // This also includes settings and options such as filters.
-            // You can find more information at https://github.com/Microsoft/PowerBI-JavaScript/wiki/Embed-Configuration-Details.
-            var config= {
-                type: 'report',
-                tokenType: models.TokenType.Embed,
-                accessToken: txtAccessToken,
-                embedUrl: txtEmbedUrl,
-                id: txtEmbedReportId,
-                permissions: permissions,
-                viewMode: models.ViewMode.View,
-                pageName: 'ReportSection3ff1eb819f6fd201ae75',
-                settings: {
-                    filterPaneEnabled: true,
-                    navContentPaneEnabled: true
-                }
-            };
+                .then(function( txtAccessToken) {
+                // Read embed URL from textbox
+            
+                var txtEmbedUrl = 'https://app.powerbi.com/reportEmbed?reportId=' + reportId + '&groupId=' + groupId;
+                 
+                // Get models. models contains enums that can be used.
+                var models = window['powerbi-client'].models
+                 
+                // We give All permissions to demonstrate switching between View and Edit mode and saving report.
+                var permissions = models.Permissions.All;
+                 
+                // Embed configuration used to describe the what and how to embed.
+                // This object is used when calling powerbi.embed.
+                // This also includes settings and options such as filters.
+                // You can find more information at https://github.com/Microsoft/PowerBI-JavaScript/wiki/Embed-Configuration-Details.
+                var config= {
+                    type: 'report',
+                    tokenType: models.TokenType.Embed,
+                    accessToken: txtAccessToken,
+                    embedUrl: txtEmbedUrl,
+                    id: reportId,
+                    permissions: permissions,
+                    viewMode: models.ViewMode.View,
+                    //pageName: 'ReportSection3ff1eb819f6fd201ae75',
+                    settings: {
+                        filterPaneEnabled: true,
+                        navContentPaneEnabled: true
+                    }
+                };
 
 
-             
-            // Get a reference to the embedded report HTML element
-            var embedContainer = $('div#embedContainer')[0];
-             
-            // Embed the report and display it within the div container.
-            var report = powerbi.embed(embedContainer, config);
-             
+                 
+                // Get a reference to the embedded report HTML element
+                var embedContainer = $('div#embedContainer')[0];
+                 
+                // Embed the report and display it within the div container.
+                var report = powerbi.embed(embedContainer, config);
+                 
+                // Report.off removes a given event handler if it exists.
+                report.off("loaded");
+                 
+                // Report.on will add an event handler which prints to Log window.
+                report.on("loaded", function() {
 
+                    report.getPages()
+                    .then(pages => {
+                        pages.map(x => console.log(x.name))
+                    });
 
-            // Report.off removes a given event handler if it exists.
-            report.off("loaded");
-             
-            // Report.on will add an event handler which prints to Log window.
-            report.on("loaded", function() {
+                    setTokenExpirationListener(Token.expiration,
+                        2 /*minutes before expiration*/, 
+                        reportId, 
+                        groupId);
+                    
 
-                report.getPages()
-                .then(pages => {
-                    pages.map(x => console.log(x.name))
+                    console.log("Loaded");
                 });
-
-                setTokenExpirationListener(Token.expiration,
-                    2 /*minutes before expiration*/, 
-                    reportId, 
-                    groupId);
-                  
-
-                console.log("Loaded");
-            });
-             
-            report.on("error", function(event) {
-                Log.log(event.detail);
-                 
-                report.off("error");
-            });
-             
-            report.off("saved");
-            report.on("saved", function(event) {
-                Log.log(event.detail);
-                if(event.detail.saveAs) {
-                    Log.logText('In order to interact with the new report, create a new token and load the new report');
-                 }
-             });
+                 
+                report.on("error", function(event) {
+                    Log.log(event.detail);
+                     
+                    report.off("error");
+                });
+                 
+                report.off("saved");
+                report.on("saved", function(event) {
+                    Log.log(event.detail);
+                    if(event.detail.saveAs) {
+                        Log.logText('In order to interact with the new report, create a new token and load the new report');
+                     }
+                 });
         });
         }
     });
 
-    
-function setTokenExpirationListener(tokenExpiration, 
-    minutesToRefresh = 2, 
-    reportId, 
-    groupId){
-    // get current time
-    var currentTime = Date.now();
-    var expiration = Date.parse(tokenExpiration);
-    var safetyInterval = minutesToRefresh* 60 * 1000;
+        
+    function setTokenExpirationListener(tokenExpiration, 
+        minutesToRefresh = 2, 
+        reportId, 
+        groupId)
+        {
+        // get current time
+        var currentTime = Date.now();
+        var expiration = Date.parse(tokenExpiration);
+        var safetyInterval = minutesToRefresh* 60 * 1000;
 
-    // time until token refresh in milliseconds
-    var timeout = expiration - currentTime - safetyInterval;
+        // time until token refresh in milliseconds
+        var timeout = expiration - currentTime - safetyInterval;
 
-    // if token already expired, generate new token and set the access token
-    if (timeout<=0)
-    {
-        console.log("Updating Report Embed Token");
-        updateToken(reportId, groupId);
+        // if token already expired, generate new token and set the access token
+        if (timeout<=0)
+        {
+            console.log("Updating Report Embed Token");
+            updateToken(reportId, groupId);
+        }
+        // set timeout so minutesToRefresh minutes before token expires, token will be updated
+        else 
+        {
+            console.log("Report Embed Token will be updated in " + timeout + " milliseconds.");
+            setTimeout(function() {
+            updateToken(reportId, groupId);
+            }, timeout);
+        }
     }
-    // set timeout so minutesToRefresh minutes before token expires, token will be updated
-    else 
-    {
-        console.log("Report Embed Token will be updated in " + timeout + " milliseconds.");
-        setTimeout(function() {
-        updateToken(reportId, groupId);
-        }, timeout);
-    }
-}
 
-function updateToken(reportId, groupId) {
-    // Generate new EmbedToken
-    generateEmbedToken(reportId, groupId)
-    .then(function( Token ) {
-        // Get a reference to the embedded report HTML element
-        var embedContainer = $('#embedContainer')[0];
+    function updateToken(reportId, groupId) {
+        // Generate new EmbedToken
+        generateEmbedToken(reportId, groupId)
+        .then(function( Token ) {
+            // Get a reference to the embedded report HTML element
+            var embedContainer = $('#embedContainer')[0];
 
-        // Get a reference to the embedded report.
-        var report = powerbi.get(embedContainer);
+            // Get a reference to the embedded report.
+            var report = powerbi.get(embedContainer);
 
-        // Set AccessToken
-        report.setAccessToken(Token.token)
-        .then(function() {
-        // Set token expiration listener
-        // result.expiration is in ISO format
-        setTokenExpirationListener(Token.expiration,2 /*minutes before expiration*/);
+            // Set AccessToken
+            report.setAccessToken(Token.token)
+            .then(function() {
+            // Set token expiration listener
+            // result.expiration is in ISO format
+            setTokenExpirationListener(Token.expiration,2 /*minutes before expiration*/);
+            });
         });
-    });
-}
- 
-function generateEmbedToken(reportId, groupId) {
-    // call backend
-}
+    }
+    
+    function generateEmbedToken(reportId, groupId) {
+        // call backend
+        return new Promise(function (fulfill, reject){
+            $.ajax({
+                type: "POST",
+                url: '/newembedtoken',
+                success: function(res){
+                    fulfill(JSON.parse(res).token);
+                },
+                error: function(err){
+                    reject('error')
+                }
+                });  
+        });
+    }
 
 </script>
 </dom-module>

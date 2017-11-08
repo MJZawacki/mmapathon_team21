@@ -15,6 +15,9 @@ const proxy = require("./proxy");
 const serverConfig = require("./server-config");
 // Configure passport for authentication with UAA
 const passportConfig = require("./passport-config");
+// Configure https
+const https = require('https');
+const request = require('request');
 // Only used if you have configured properties for UAA
 let passport;
 let mainAuthenticate;
@@ -124,13 +127,19 @@ app.use("/redirect", function (req, res) {
     console.log('CODE: ' + req.query.code);
     //get access_token and refresh_token
 
-    
-    // Set the headers
+    var form = {
+        'grant_type': 'authorization_code',
+        'code': accesscode,
+        'client_id': '429565bf-9782-474a-8d4b-3c2449669c97',
+        'redirect_uri': 'http://localhost:5000/redirect',
+        'client_secret': 'LsQO0wUXht/OCkrjuudFRxyv6vJ2VXqVTm0C/yZhsao='
+    };
+
     var headers = {
         'User-Agent':       'Super Agent/0.0.1',
-        'Content-Type':     'application/x-www-form-urlencoded'
-    }
-    
+        'Content-Type':     'application/x-www-form-urlencoded',
+    };
+
     // Configure the request
     var options = {
         url: 'https://login.microsoftonline.com/72f988bf-86f1-41af-91ab-2d7cd011db47/oauth2/token',
@@ -138,42 +147,46 @@ app.use("/redirect", function (req, res) {
         headers: headers,
         form: {
             'grant_type': 'authorization_code',
-        'code': accesscode,
-        'client_id': '429565bf-9782-474a-8d4b-3c2449669c97',
-        'redirect_uri': 'http://localhost:5000/redirect',
-        'client_secret': 'LsQO0wUXht/OCkrjuudFRxyv6vJ2VXqVTm0C/yZhsao='
+            'code': accesscode,
+            'client_id': '429565bf-9782-474a-8d4b-3c2449669c97',
+            'redirect_uri': 'http://localhost:5000/redirect',
+            'client_secret': 'LsQO0wUXht/OCkrjuudFRxyv6vJ2VXqVTm0C/yZhsao='
         }
-    }
-    
-    // Start the request
-    request(options, function (error, response, body) {
-        if (!error && response.statusCode == 200) {
-            // Print out the response body
-         
-            var responseObj = JSON.parse(body);
-            console.log('access_token: ' + responseObj.access_token);
-            console.log('refresh_token: ' + responseObj.refresh_token);
-            app.set('access_token', responseObj.access_token);
-            app.set('refresh_token', responseObj.refresh_token);
-            return res.status(200).send('{ "access_token": "' + responseObj.access_token + '", "refresh_token: "' + responseObj.refresh_token + '" }');
-        } else {
-            return res.status(response.statusCode);
-        }
-    });
-    
-    
+    };
+
+        request(options, function (error, response, body) {
+            if (!error && response.statusCode == 200) {
+                var responseObj = JSON.parse(body);
+
+                console.log('access_token: ' + responseObj.access_token);
+                console.log('refresh_token: ' + responseObj.refresh_token);
+                app.set('access_token', responseObj.access_token);
+                app.set('refresh_token', responseObj.refresh_token);
+            
+                return res.status(200).send('{ "access_token": "' + responseObj.access_token + '", "refresh_token: "' + responseObj.refresh_token + '" }');
+            } else {
+                return res.status(response.statusCode);
+            }
+        });
 });
 
 app.use("/newembedtoken", mainAuthenticate({noRedirect: true}), function (req, res) {
+
     // Set the headers
     var headers = {
         'Authorization':       'Bearer ' + app.get('access_token'),
         'Content-Type':     'application/json'
     }
     
+    var groupId = '102b79a2-229e-4d79-9d90-24d15c14b278';
+    var reportId = 'f451eb77-03e6-4c35-9fc1-ae1163290f4a';
+
+    // TODO - change url to get group and id from request and generate token for specific report
+    var requestUrl = 'https://api.powerbi.com/v1.0/myorg/groups/' + groupId + '/reports/' + reportId + '/GenerateToken';
+
     // Configure the request
     var options = {
-        url: 'https://api.powerbi.com/v1.0/myorg/groups/102b79a2-229e-4d79-9d90-24d15c14b278/reports/f451eb77-03e6-4c35-9fc1-ae1163290f4a/GenerateToken',
+        url: requestUrl,
         method: 'POST',
         headers: headers,
         form: {   
@@ -196,7 +209,7 @@ app.use("/newembedtoken", mainAuthenticate({noRedirect: true}), function (req, r
                 'Content-Type':     'application/json'
             };
             var options = {
-                url: 'https://api.powerbi.com/v1.0/myorg/groups/102b79a2-229e-4d79-9d90-24d15c14b278/reports/f451eb77-03e6-4c35-9fc1-ae1163290f4a/GenerateToken',
+                url: requestUrl,
                 method: 'POST',
                 headers: headers,
                 form: {   
@@ -220,7 +233,8 @@ app.use("/newembedtoken", mainAuthenticate({noRedirect: true}), function (req, r
 });
 
 var refreshAccessToken = function() {
-
+    // TODO implement
+    // app.set(token)
 };
 
 
