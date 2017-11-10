@@ -234,6 +234,7 @@ app.use("/newembedtoken", mainAuthenticate({noRedirect: true}), function (req, r
 
 var refreshAccessToken = function() {
     // TODO implement
+    // https://github.com/AzureAD/azure-activedirectory-library-for-nodejs/blob/2badd7c19e562c22fbdaff83e2d4bd524ab30c59/sample/username-password-sample.js
     // app.set(token)
 };
 

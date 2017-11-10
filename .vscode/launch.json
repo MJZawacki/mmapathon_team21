@@ -19,7 +19,7 @@
         "port": 5858,
         "address": "localhost",
         "localRoot": "${workspaceFolder}/",
-        "remoteRoot": "/scratch/"
+        "remoteRoot": "/usr/src/app"
     }
     ]
 }
